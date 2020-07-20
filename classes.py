@@ -25,7 +25,7 @@ class DependentCurrentSource :
         self.source = source
 
 class IndependentCurrentSource :
-    def __init__(self, beginning, end,source,bias, value) :
+    def __init__(self, beginning, end, value) :
         self.beginning_position = beginning
         self.end_position = end
         self.value = value
