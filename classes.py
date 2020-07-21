@@ -1,3 +1,12 @@
+class Part:
+    def __init__(self,_type, start,end,value,value_source = None , bias = 0):
+        self.type = _type
+        self.start = start
+        self.end = end
+        self.value = value
+        self.value_source = value_source
+        self.bias = bias
+
 class Resistance :
     def __init__(self, beginning, end, value) :
         self.beginning_position = beginning

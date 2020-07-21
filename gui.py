@@ -2,10 +2,11 @@ import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import *
 from classes import *
+from PIL import Image, ImageTk
 
 class Main_GUI:
     def __init__(self):
-        self.available_things = ['Resitance','Dependent Current Source','Independent Current Source','Dependent Voltage Source','Independent Voltage Source','Wire']
+        self.available_things = ['Resistance','Dependent Current Source','Independent Current Source','Dependent Voltage Source','Independent Voltage Source','Wire']
         self.parts = []
         print('window is up and ready!')
         self.create_main_window()
@@ -14,23 +15,46 @@ class Main_GUI:
         selection = "You selected the option " + str(self.string_var.get())
         print(selection)
     
-    def place_part(self):
-        #TODO: place the part On the Board!
-        part_mode = self.string_var.get()
-        if (part_mode == 'Resistance'):
-            self.parts.append(Resistance(int(self.entry_start.get()),int(self.entry_end.get()),float(self.entry_value.get())))
-        elif (part_mode == 'Dependent Current Source'):
-            self.parts.append(DependentCurrentSource(int(self.entry_start.get()),int(self.entry_end.get()),self.entry_source.get(),0,float(self.entry_value.get())))
-        elif (part_mode == 'Independent Current Source'):
-            self.parts.append(IndependentCurrentSource(int(self.entry_start.get()),int(self.entry_end.get()),float(self.entry_value.get())))
-        elif (part_mode == 'Dependent Voltage Source'):
-            self.parts.append(DependentCurrentSource(int(self.entry_start.get()),int(self.entry_end.get()),self.entry_source.get(),0,float(self.entry_value.get())))
-        elif (part_mode == 'Independent Voltage Source'):
-            self.parts.append(IndependentVoltagetSource(int(self.entry_start.get()),int(self.entry_end.get()),float(self.entry_value.get())))
-        elif (part_mode == 'Wire'):
-            self.parts.append(Wire(int(self.entry_start.get()),int(self.entry_end.get())))
+    def draw_part(self):
+        print('drawing...')
+        part = self.parts[-1]
+        path = part.type + '.png'
+        d = 0
+        d_horiz_verti = 0
+        image = Image.open(path)
+        image = image.resize((120, 100), Image.ANTIALIAS)
+        if (part.start == part.end - 1):
+            d_horiz_verti = 0
+            d = 2*int(part.start/3) + (part.start%3) - 1
+            print('No Rotate needed.')
+        elif (part.start - 1 == part.end):
+            d_horiz_verti = 0
+            d = 2*int(part.end/3) + (part.end%3) - 1
+            image = image.transpose(Image.ROTATE_180)
+        elif (part.start == part.end - 3):
+            d_horiz_verti = 1
+            d = part.start - 1
+            image = image.transpose(Image.ROTATE_270)
+        elif (part.start - 3 == part.end):
+            d_horiz_verti = 1
+            d = part.end - 1
+            image = image.transpose(Image.ROTATE_90)
+        img = ImageTk.PhotoImage(image)
+        if (d_horiz_verti == 0):
+            self.place_locals_horiz[d].configure(image = img)
+            self.place_locals_horiz[d].image = img
         else:
+            self.place_locals_verti[d].configure(image = img)
+            self.place_locals_verti[d].image = img
+
+        
+    def place_part(self):
+        part_mode = self.string_var.get()
+        if (not (part_mode in self.available_things)):
             print('You Have to Select a Part!')
+            return
+        self.parts.append(Part(part_mode,int(self.entry_start.get()),int(self.entry_end.get()),value=float(self.entry_value.get()),value_source=self.entry_source.get()))
+        self.draw_part()
         print('Placed ' + str(part_mode))
         self.place_window.destroy()
 
@@ -70,19 +94,30 @@ class Main_GUI:
 
     def create_main_window(self):
         self.main_window = tk.Tk()
+        self.main_window.title('Main Window')
         self.string_var = StringVar()
         self.text_font = tkFont.Font(family="Lucida Grande", size=10)
         self.font = tkFont.Font(family="Lucida Grande", size=60)
-        self.main_window.rowconfigure([0,1,2,3], minsize=150, weight=1)
-        self.main_window.columnconfigure([0, 1, 2], minsize=200, weight=1)
+        self.main_window.rowconfigure([0,1,2,3,4,5], minsize=100, weight=1)
+        self.main_window.columnconfigure([0, 1, 2,3,4], minsize=120, weight=1)
         self.dots = []
+        self.place_locals_horiz = []
+        self.place_locals_verti = []
         for i in range(9):
             self.dots.append(tk.Label(master=self.main_window, text=".",font = self.font))
-            self.dots[i].grid(row = int(i/3), column =int(i%3))
+            self.dots[i].grid(row = int(i/3)*2, column =int(i%3)*2)
+        imh = PhotoImage(file='Wire.png')
+        imv = PhotoImage(file='WireFlipped.png')
+        for i in range(6):
+            self.place_locals_horiz.append(Label(master=self.main_window,image = imh))
+            self.place_locals_horiz[i].grid(row = int(i/2) * 2,column = ((i%2) *2) + 1,sticky = NSEW)
+        for i in range(6):
+            self.place_locals_verti.append(Label(master=self.main_window,image = imv))
+            self.place_locals_verti[i].grid(row =(int(i/3) * 2) + 1,column = int(i%3) * 2,sticky = NSEW)
         self.place_button = tk.Button(master=self.main_window, text="Place Part", command=self.open_place_part_window)
-        self.place_button.grid(row=3, column=0)
+        self.place_button.grid(row=5, column=1,sticky = NSEW)
         self.analyze_button = tk.Button(master=self.main_window, text="Analyze", command=self.analyze)
-        self.analyze_button.grid(row=3, column=2)
+        self.analyze_button.grid(row=5, column=3,sticky = NSEW)
         self.main_window.mainloop()
 
     def analyze(self):
