@@ -3,6 +3,7 @@ import tkinter.font as tkFont
 from tkinter import *
 from classes import *
 from PIL import Image, ImageTk
+import numpy as np
 
 class Main_GUI:
     def __init__(self):
@@ -122,7 +123,29 @@ class Main_GUI:
 
     def analyze(self):
         print('Analyzing...')
-        #TODO:complete here
+        R1 = self.parts[0].value
+        R2 = self.parts[1].value
+        R3 = self.parts[2].value
+        I1 = self.parts[3].value
+        I2 = self.parts[4].value
+        I3 = self.parts[5].value
+        V = self.parts[6].value
+        # for voltage of each nodes
+
+        # V4, V5, V6
+        a = np.array([[1/R3, -1/R1, 1/R1], [0, 1/R1+1/R2, -1/R1], [-1, 0, 1]])
+        b = np.array([I2, I1+I3, V])
+        x = np.linalg.solve(a,b)
+        print('V1 = ' + str(x[2]))
+        print('V2 = ' + str(x[2]))
+        print('V3 = ' + str(x[0]))
+        print('V4 = ' + str(x[2]))
+        print('V5 = ' + str(x[1]))
+        print('V6 = ' + str(x[0]))
+        print('V7 = ' + str(0))
+        print('V8 = ' + str(0))
+        print('V9 = ' + str(0))
+        print('Analyze is over.')
 
 g = Main_GUI()
 
