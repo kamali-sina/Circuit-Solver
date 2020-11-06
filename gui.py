@@ -9,6 +9,7 @@ class Main_GUI:
     def __init__(self):
         self.available_things = ['Resistance','Dependent Current Source','Independent Current Source','Dependent Voltage Source','Independent Voltage Source','Wire']
         self.parts = []
+        self.prefix = './files/'
         print('window is up and ready!')
         self.create_main_window()
     
@@ -19,7 +20,7 @@ class Main_GUI:
     def draw_part(self):
         print('drawing...')
         part = self.parts[-1]
-        path = part.type + '.png'
+        path = self.prefix+ part.type + '.png'
         d = 0
         d_horiz_verti = 0
         image = Image.open(path)
@@ -107,8 +108,8 @@ class Main_GUI:
         for i in range(9):
             self.dots.append(tk.Label(master=self.main_window, text=".",font = self.font))
             self.dots[i].grid(row = int(i/3)*2, column =int(i%3)*2)
-        imh = PhotoImage(file='Wire.png')
-        imv = PhotoImage(file='WireFlipped.png')
+        imh = PhotoImage(file=self.prefix + 'Wire.png')
+        imv = PhotoImage(file=self.prefix + 'WireFlipped.png')
         for i in range(6):
             self.place_locals_horiz.append(Label(master=self.main_window,image = imh))
             self.place_locals_horiz[i].grid(row = int(i/2) * 2,column = ((i%2) *2) + 1,sticky = NSEW)
@@ -123,13 +124,23 @@ class Main_GUI:
 
     def analyze(self):
         print('Analyzing...')
-        R1 = self.parts[0].value
-        R2 = self.parts[1].value
-        R3 = self.parts[2].value
-        I1 = self.parts[3].value
-        I2 = self.parts[4].value
-        I3 = self.parts[5].value
-        V = self.parts[6].value
+        R1 = 0 
+        R2 = 0
+        R3 = 0
+        I1 = 0
+        I2 = 0
+        I3 = 0
+        V = 0
+        try:
+            R1 = self.parts[0].value
+            R2 = self.parts[1].value
+            R3 = self.parts[2].value
+            I1 = self.parts[3].value
+            I2 = self.parts[4].value
+            I3 = self.parts[5].value
+            V = self.parts[6].value
+        except:
+            print('unrecognized pattern...')
         # for voltage of each nodes
 
         # V4, V5, V6
